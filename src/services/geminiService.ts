@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 
 const API_KEY = process.env.GEMINI_API_KEY;
-const genAI = new GoogleGenAI({ apiKey: API_KEY || "" });
+const ai = new GoogleGenAI({ apiKey: API_KEY || "" });
 
 const SYSTEM_INSTRUCTIONS = `
 You are Nyaya Mitra, a specialized Digital Legal Research System for the citizens of India.
@@ -29,27 +29,31 @@ IMPORTANT DISCLAIMER:
 “This analysis is informational and educational in nature and does not constitute professional legal advice. Laws vary by facts, jurisdiction, evidence, and judicial interpretation. Consult a licensed advocate for serious legal matters.”
 `;
 
-const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-flash",
-  systemInstruction: SYSTEM_INSTRUCTIONS,
-});
+const MODEL_NAME = "gemini-3-flash-preview";
+
+async function generateResponse(prompt: string) {
+  const response = await ai.models.generateContent({
+    model: MODEL_NAME,
+    contents: prompt,
+    config: {
+      systemInstruction: SYSTEM_INSTRUCTIONS,
+    }
+  });
+  return response.text || "No response generated.";
+}
 
 export async function analyzeIncident(incident: string) {
-  const result = await model.generateContent(`Analyze this situation in the Indian legal context: ${incident}`);
-  return result.response.text();
+  return generateResponse(`Analyze this situation in the Indian legal context: ${incident}`);
 }
 
 export async function quickCheck(question: string) {
-  const result = await model.generateContent(`Briefly answer if this action is legal in India and under what conditions: ${question}`);
-  return result.response.text();
+  return generateResponse(`Briefly answer if this action is legal in India and under what conditions: ${question}`);
 }
 
 export async function findSections(topic: string) {
-  const result = await model.generateContent(`Identify specific sections from BNS, IT Act, or Constitution relevant to: ${topic}`);
-  return result.response.text();
+  return generateResponse(`Identify specific sections from BNS, IT Act, or Constitution relevant to: ${topic}`);
 }
 
 export async function draftDocument(type: string, details: string) {
-  const result = await model.generateContent(`Help me draft a factual and neutral ${type} based on these details: ${details}. Format it professionally for Indian authorities.`);
-  return result.response.text();
+  return generateResponse(`Help me draft a factual and neutral ${type} based on these details: ${details}. Format it professionally for Indian authorities.`);
 }
