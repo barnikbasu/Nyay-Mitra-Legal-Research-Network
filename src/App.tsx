@@ -210,7 +210,6 @@ const AnalysisView = () => {
 
   const handleAnalyze = async () => {
     if (!incident.trim()) return;
-    setIncident('');
     setLoading(true);
     try {
       const res = await gemini.analyzeIncident(incident);
