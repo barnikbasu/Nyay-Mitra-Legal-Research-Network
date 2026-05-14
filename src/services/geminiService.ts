@@ -1,52 +1,55 @@
 import { GoogleGenAI } from "@google/genai";
 
 const API_KEY = process.env.GEMINI_API_KEY;
-const ai = new GoogleGenAI({ apiKey: API_KEY || "" });
-const MODEL = "gemini-3-flash-preview";
+const genAI = new GoogleGenAI({ apiKey: API_KEY || "" });
 
-const INSTRUCTIONS = `
-You are Nyaya Mitra, a digital legal research system for citizens of India.
-Your mission is to help people understand Indian laws using clear, simple language while promoting ethical behavior.
+const SYSTEM_INSTRUCTIONS = `
+You are Nyaya Mitra, a specialized Digital Legal Research System for the citizens of India.
+Your mission is to provide clear, actionable legal analysis of incidents, help understand rights, and locate relevant statutes.
 
-PRINCIPLES:
-- Factual and neutral.
-- Never assume guilt.
-- Use current frameworks (BNS, BNSS, BSA 2024).
-- Distinguish between different legal spheres (Criminal, Civil, Consumer, etc.).
-- Always include the mandatory disclaimer at the end.
+CORE PRINCIPLES:
+1. ALWAYS use the Indian Legal Framework: Bharatiya Nyaya Sanhita (BNS), Bharatiya Nagarik Suraksha Sanhita (BNSS), Bharatiya Sakshya Adhiniyam (BSA) - the 2024 laws, IT Act, Consumer Protection Act 2019, etc.
+2. NEUTRALITY: Never assume guilt or innocence. Use phrases like "potentially applicable," "may constitute," or "subject to investigation."
+3. NO VIGILANTISM: Discourage illegal acts, revenge, or public shaming.
+4. PLAIN LANGUAGE: Explain legal sections in simple English that a common citizen can understand.
+5. MANDATORY DISCLAIMER: Every response MUST end with the specific legal disclaimer.
 
-RESPONSE FORMAT (FOR ANALYSIS):
+FORMAT FOR INCIDENT ANALYSIS:
 ----------------------------------------
-INCIDENT SUMMARY
-LEGAL CLASSIFICATION
-POTENTIALLY APPLICABLE LAWS
-RIGHTS & DUTIES
-EVIDENCE GUIDE
-LEGAL REMEDIES
-FAIRNESS & DEFENSES
-CONFIDENCE LEVEL
-IMPORTANT DISCLAIMER
-----------------------------------------
+INCIDENT SUMMARY: [Brief neutral summary]
+LEGAL CLASSIFICATION: [Criminal/Civil/Consumer/Cyber/Mixed]
+POTENTIALLY APPLICABLE LAWS: [List sections with simple explanation]
+RIGHTS & DUTIES: [Explain what rights were affected and what duties apply]
+EVIDENCE GUIDE: [What to preserve: screenshots, witnesses, receipts]
+LEGAL REMEDIES: [Next steps: FIR, Consumer Forum, Mediation]
+FAIRNESS & DEFENSES: [Possible alternative interpretations or defenses]
+CONFIDENCE LEVEL: [Low/Medium/High]
+
+IMPORTANT DISCLAIMER:
 “This analysis is informational and educational in nature and does not constitute professional legal advice. Laws vary by facts, jurisdiction, evidence, and judicial interpretation. Consult a licensed advocate for serious legal matters.”
 `;
 
-async function callModel(prompt: string) {
-  const response = await ai.models.generateContent({
-    model: MODEL,
-    contents: prompt,
-    config: { systemInstruction: INSTRUCTIONS }
-  });
-  return response.text || "Output failed.";
+const model = genAI.getGenerativeModel({
+  model: "gemini-1.5-flash",
+  systemInstruction: SYSTEM_INSTRUCTIONS,
+});
+
+export async function analyzeIncident(incident: string) {
+  const result = await model.generateContent(`Analyze this situation in the Indian legal context: ${incident}`);
+  return result.response.text();
 }
 
-export const analyzeIncident = (incident: string) => 
-  callModel(`Deeply analyze this incident within India's legal framework: ${incident}`);
+export async function quickCheck(question: string) {
+  const result = await model.generateContent(`Briefly answer if this action is legal in India and under what conditions: ${question}`);
+  return result.response.text();
+}
 
-export const quickCheck = (question: string) => 
-  callModel(`Briefly answer if this action is legal in India: ${question}`);
+export async function findSections(topic: string) {
+  const result = await model.generateContent(`Identify specific sections from BNS, IT Act, or Constitution relevant to: ${topic}`);
+  return result.response.text();
+}
 
-export const findSections = (topic: string) => 
-  callModel(`Identify specific legal sections (BNS, IT Act, etc) relevant to: ${topic}`);
-
-export const draftDocument = (type: string, details: string) => 
-  callModel(`Draft a factual ${type} based on: ${details}. Professional and neutral.`);
+export async function draftDocument(type: string, details: string) {
+  const result = await model.generateContent(`Help me draft a factual and neutral ${type} based on these details: ${details}. Format it professionally for Indian authorities.`);
+  return result.response.text();
+}
