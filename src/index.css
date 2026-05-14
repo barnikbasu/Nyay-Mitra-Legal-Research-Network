@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", serif;
+  
+  --color-legal-dark: #0A0A0A;
+  --color-legal-panel: #0F0F0F;
+  --color-legal-sidebar: #141414;
+  --color-legal-gold: #c5a059;
+  --color-legal-accent: #2e4a7a;
+  --color-legal-emerald: #10b981;
+  --color-legal-amber: #f59e0b;
+}
+
+@layer base {
+  body {
+    @apply bg-legal-dark text-white font-sans antialiased uppercase;
+  }
+}
+
+.markdown-body {
+  @apply text-slate-200 normal-case;
+}
+
+.markdown-body h2 {
+  @apply text-white text-3xl font-black mt-10 mb-6 border-b border-white/10 pb-4 tracking-tighter uppercase;
+}
+
+.markdown-body p {
+  @apply mb-4 leading-relaxed text-lg font-serif italic;
+}
+
+.markdown-body ul {
+  @apply list-none ml-0 mb-6 space-y-3;
+}
+
+.markdown-body li {
+  @apply py-3 px-4 border border-white/10 bg-white/5 font-bold uppercase text-[11px] tracking-widest flex justify-between;
+}
+
+.markdown-body strong {
+  @apply text-emerald-400 font-black;
+}
+
+/* Custom layout patterns from theme */
+.border-industrial {
+  @apply border border-white/10;
+}
+
+.btn-industrial-primary {
+  @apply px-6 py-4 bg-white text-black font-black uppercase text-sm tracking-widest transition-all hover:bg-emerald-400;
+}
+
+.btn-industrial-outline {
+  @apply px-6 py-4 border border-white/20 text-white font-black uppercase text-sm tracking-widest transition-all hover:bg-white hover:text-black;
+}
+
+.label-micro {
+  @apply text-[10px] uppercase tracking-[0.3em] font-bold opacity-50;
+}
